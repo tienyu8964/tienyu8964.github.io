@@ -3,277 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>交易工具箱</title>
+    <title>交易者工具箱</title>
     <style>
         :root {
-            --up-red: #F6465D;       
-            --up-red-hover: #ff5a71;
-            --down-green: #0ECB81;   
-            --bg-dark: #0b0e11;      
-            --card-bg: #1e2329;      
-            --input-bg: #2b3139;     
-            --text-main: #eaecef;    
-            --text-muted: #848e9c;   
-            --border-color: #2b3139; 
+            --up-red: #F6465D; --down-green: #0ECB81;
+            --bg-dark: #0b0e11; --card-bg: #1e2329; --input-bg: #2b3139;
+            --text-main: #eaecef; --text-muted: #848e9c; --border-color: #2b3139;
         }
-
-        body {
-            font-family: "DIN Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding: 40px 20px;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 隐藏 input type="number" 的右侧箭头 */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        .page-title {
-            margin: 0 0 40px 0;
-            font-size: 28px;
-            letter-spacing: 4px;
-            font-weight: bold;
-            color: var(--text-main);
-        }
-
-        .main-layout {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 30px;
-            width: 100%;
-            max-width: 1200px;
-            flex-wrap: wrap;
-        }
-
-        .container {
-            flex: 1 1 450px; 
-            max-width: 550px;
-            background: var(--card-bg);
-            padding: 35px 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-color);
-            box-sizing: border-box;
-        }
-
-        h2 {
-            text-align: center;
-            color: var(--text-main);
-            margin-top: 0;
-            margin-bottom: 30px;
-            font-weight: 700;
-            font-size: 20px;
-            letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
+        body { font-family: "DIN Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding: 40px 20px; margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .main-layout { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 30px; width: 100%; max-width: 1200px; flex-wrap: wrap; }
+        .container { flex: 1 1 450px; max-width: 550px; background: var(--card-bg); padding: 35px 30px; border-radius: 12px; border: 1px solid var(--border-color); }
+        
+        h2 { text-align: center; color: var(--text-main); margin-top: 0; margin-bottom: 30px; font-weight: 700; font-size: 20px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         h2::before { content: ''; display: inline-block; width: 8px; height: 22px; background: var(--up-red); border-radius: 2px; }
         h2::after { content: ''; display: inline-block; width: 8px; height: 22px; background: var(--down-green); border-radius: 2px; }
 
-        .form-grid { display: grid; gap: 20px; }
-        .row-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: flex-end; margin-bottom: 15px; }
-
-        .input-group { position: relative; }
+        /* 核心布局：确保行对齐 */
+        .row-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; }
         .input-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-            background-color: var(--input-bg);
-            color: var(--text-main);
-            font-weight: 600;
-            font-family: inherit;
-            transition: all 0.2s ease;
-        }
-
-        .input-group input:focus { border-color: var(--up-red); outline: none; box-shadow: 0 0 0 2px rgba(246, 70, 93, 0.2); }
-        .avg-focus input:focus { border-color: var(--down-green); box-shadow: 0 0 0 2px rgba(14, 203, 129, 0.2); }
-
-        .input-group.has-unit::after {
-            content: attr(data-unit);
-            position: absolute;
-            right: 15px;
-            top: 40px;
-            color: var(--text-muted);
-            font-weight: 500;
-            pointer-events: none;
-        }
-
-        button {
-            width: 100%; padding: 15px; background-color: var(--up-red); color: white; border: none; border-radius: 6px;
-            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; letter-spacing: 2px; transition: background 0.2s;
-        }
-        button:hover { background-color: var(--up-red-hover); }
-        button:active { transform: scale(0.98); }
-
+        .input-group input { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-size: 15px; background-color: var(--input-bg); color: var(--text-main); }
+        
+        button { width: 100%; padding: 15px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; letter-spacing: 2px; color: white; }
+        .btn-red { background-color: var(--up-red); }
         .btn-green { background-color: var(--down-green); }
-        .btn-green:hover { background-color: #12e091; }
-
-        .btn-secondary { background-color: var(--input-bg); color: var(--text-main); border: 1px dashed var(--text-muted); font-size: 14px; padding: 12px; margin-top: 0; margin-bottom: 15px; }
-        .btn-secondary:hover { background-color: #363d47; border-color: var(--text-main); }
-
-        .btn-delete { background-color: transparent; color: var(--text-muted); padding: 13px; margin-top: 0; width: auto; border: 1px solid var(--border-color); }
-        .btn-delete:hover { background-color: var(--border-color); color: var(--up-red); }
-
-        .result-box { margin-top: 30px; display: none; }
-
-        .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; }
-
-        .summary-card { background: var(--input-bg); padding: 16px 10px; border-radius: 6px; text-align: center; border-top: 3px solid var(--border-color); }
-
-        #resultBox .summary-card:nth-child(1) { border-top-color: var(--down-green); }
-        #resultBox .summary-card:nth-child(2) { border-top-color: var(--text-main); }
-        #resultBox .summary-card:nth-child(3) { border-top-color: var(--up-red); }
-        #avgResultBox .summary-card:nth-child(1) { border-top-color: var(--border-color); }
-        #avgResultBox .summary-card:nth-child(2) { border-top-color: var(--border-color); }
-        #avgResultBox .summary-card:nth-child(3) { border-top-color: var(--down-green); }
-
-        .summary-card p { margin: 0; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-        .summary-card h4 { margin: 0; font-size: 17px; color: var(--text-main); font-weight: 700; word-break: break-all; }
-        .summary-card h4.red { color: var(--up-red); }
-        .summary-card h4.green { color: var(--down-green); }
-
-        .table-container { max-height: 320px; overflow-y: auto; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); }
-        .table-container::-webkit-scrollbar { width: 6px; }
-        .table-container::-webkit-scrollbar-thumb { background: #474d57; border-radius: 3px; }
-
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background-color: var(--card-bg); color: var(--text-muted); font-weight: normal; padding: 12px; text-align: right; position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 0 var(--border-color); }
-        th:first-child, td:first-child { text-align: center; }
-        td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border-color); color: var(--text-main); font-variant-numeric: tabular-nums; }
-        tr:hover td { background-color: var(--input-bg); }
-        .profit-text { color: var(--up-red); font-weight: bold; }
-        .invest-text { color: var(--down-green); }
-        .total-text { font-weight: bold; color: var(--text-main); }
+        .btn-secondary { background-color: var(--input-bg); border: 1px dashed var(--text-muted); color: var(--text-main); margin-top: 10px; }
+        .btn-delete { background-color: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 12px; width: 42px; }
+        
+        .result-box { margin-top: 20px; }
+        .summary-card { background: var(--input-bg); padding: 15px; border-radius: 6px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="page-title">TRADE TERMINAL</div>
-
 <div class="main-layout">
     <div class="container">
         <h2>复利仓位模型</h2>
-        <div class="form-grid">
-            <div class="input-group">
-                <label>初始本金</label>
-                <input type="number" id="principal" value="" placeholder="例如: 10000">
-            </div>
-            <div class="input-group has-unit" data-unit="%">
-                <label>单次仓位</label>
-                <input type="number" id="position" value="" placeholder="例如: 100">
-            </div>
-            <div class="input-group has-unit" data-unit="%">
-                <label>单次收益率</label>
-                <input type="number" id="profit" value="" placeholder="例如: 5">
-            </div>
-            <div class="input-group has-unit" data-unit="x">
-                <label>目标倍数</label>
-                <input type="number" id="targetTimes" value="" placeholder="例如: 2">
-            </div>
+        <div style="display:block">
+            <div class="input-group"><label>初始本金</label><input type="number" id="principal" placeholder="例如: 10000"></div>
+            <div class="input-group" style="margin-top:15px"><label>单次仓位</label><input type="number" id="position" placeholder="例如: 100"></div>
+            <div class="input-group" style="margin-top:15px"><label>单次收益率</label><input type="number" id="profit" placeholder="例如: 5"></div>
+            <div class="input-group" style="margin-top:15px"><label>目标倍数</label><input type="number" id="targetTimes" placeholder="例如: 2"></div>
         </div>
-        <button onclick="calculateCompound()">计算复利计划</button>
-        <div class="result-box" id="resultBox">
-            <div class="summary-cards">
-                <div class="summary-card"><p>目标资金</p><h4 id="targetAsset">0</h4></div>
-                <div class="summary-card"><p>复利次数</p><h4 id="totalCount">0</h4></div>
-                <div class="summary-card"><p>最终资金</p><h4 id="finalAsset" class="red">0</h4></div>
-            </div>
-            <div class="table-container">
-                <table id="detailTable">
-                    <thead><tr><th>#</th><th>投入(绿)</th><th>收益(红)</th><th>总资产</th></tr></thead>
-                    <tbody id="detailBody"></tbody>
-                </table>
-            </div>
-        </div>
+        <button class="btn-red" onclick="alert('功能待对接')">计算复利计划</button>
     </div>
 
-    <div class="container avg-focus">
+    <div class="container">
         <h2>持仓均价计算器</h2>
         <div id="positionList">
             <div class="row-grid">
-                <div class="input-group"><label>买入价格 (首仓)</label><input type="number" class="pos-price" placeholder="例如: 10.5"></div>
-                <div class="input-group"><label>买入数量</label><input type="number" class="pos-qty" placeholder="例如: 1000"></div>
-                <button class="btn-delete" onclick="removeRow(this)">✕</button>
+                <div class="input-group"><label>买入价格 (首仓)</label><input type="number" class="pos-price" placeholder="10.5"></div>
+                <div class="input-group"><label>买入数量</label><input type="number" class="pos-qty" placeholder="1000"></div>
+                <button class="btn-delete" style="visibility:hidden">✕</button>
             </div>
         </div>
-        <button class="btn-secondary" onclick="addPositionRow()">+ 增加一笔补仓/加仓</button>
+        <button class="btn-secondary" onclick="addRow()">+ 增加一笔补仓/加仓</button>
         <button class="btn-green" onclick="calculateAvg()">计算持仓成本</button>
         <div class="result-box" id="avgResultBox">
-            <div class="summary-cards">
-                <div class="summary-card"><p>总投入成本</p><h4 id="totalCost">0</h4></div>
-                <div class="summary-card"><p>总持仓数量</p><h4 id="totalQty">0</h4></div>
-                <div class="summary-card"><p>平均持仓成本</p><h4 id="avgPrice" class="green">0</h4></div>
-            </div>
+            <div class="summary-card"><p>点击计算获取结果</p></div>
         </div>
     </div>
 </div>
 
+<footer style="text-align: center; margin-top: 50px;">
+    <a href="https://t.me/xjpccb" target="_blank" style="color: var(--text-muted); text-decoration: none; font-size: 14px;">@xjpccb</a>
+</footer>
+
 <script>
-function formatMoney(num) { return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 }); }
-function calculateCompound() {
-    const principal = parseFloat(document.getElementById('principal').value);
-    const positionPercent = parseFloat(document.getElementById('position').value) / 100;
-    const profitPercent = parseFloat(document.getElementById('profit').value) / 100;
-    const targetTimes = parseFloat(document.getElementById('targetTimes').value);
-    if (isNaN(principal) || isNaN(positionPercent) || isNaN(profitPercent) || isNaN(targetTimes) || principal <= 0) { alert("请完整填写有效的数据。"); return; }
-    const targetAsset = principal * targetTimes;
-    let currentAsset = principal, count = 0, tableHtml = "";
-    while (currentAsset < targetAsset && count < 1000) {
-        count++; const investAmount = currentAsset * positionPercent; const currentProfit = investAmount * profitPercent; currentAsset += currentProfit;
-        tableHtml += `<tr><td>${count}</td><td class="invest-text">${formatMoney(investAmount)}</td><td class="profit-text">+${formatMoney(currentProfit)}</td><td class="total-text">${formatMoney(currentAsset)}</td></tr>`;
-    }
-    const resultBox = document.getElementById('resultBox'); resultBox.style.display = 'block';
-    document.getElementById('targetAsset').innerText = formatMoney(targetAsset); document.getElementById('totalCount').innerText = count >= 1000 ? "1000+" : count;
-    document.getElementById('finalAsset').innerText = formatMoney(currentAsset); document.getElementById('detailBody').innerHTML = tableHtml;
+function addRow() {
+    const div = document.createElement('div'); 
+    div.className = 'row-grid';
+    div.innerHTML = `
+        <div class="input-group"><input type="number" class="pos-price" placeholder="价格"></div>
+        <div class="input-group"><input type="number" class="pos-qty" placeholder="数量"></div>
+        <button class="btn-delete" onclick="this.parentElement.remove()">✕</button>
+    `;
+    document.getElementById('positionList').appendChild(div);
 }
-function addPositionRow() {
-    const list = document.getElementById('positionList'); const newRow = document.createElement('div'); newRow.className = 'row-grid';
-    newRow.innerHTML = `<div class="input-group"><label>买入价格 (加仓)</label><input type="number" class="pos-price" placeholder="例如: 8.5"></div><div class="input-group"><label>买入数量</label><input type="number" class="pos-qty" placeholder="例如: 1500"></div><button class="btn-delete" onclick="removeRow(this)">✕</button>`;
-    list.appendChild(newRow);
-}
-function removeRow(btn) { btn.parentElement.remove(); }
 function calculateAvg() {
-    const prices = document.getElementsByClassName('pos-price'), quantities = document.getElementsByClassName('pos-qty');
-    let totalCost = 0, totalQty = 0, hasValidData = false;
-    for (let i = 0; i < prices.length; i++) {
-        const p = parseFloat(prices[i].value), q = parseFloat(quantities[i].value);
-        if (!isNaN(p) && !isNaN(q) && p > 0 && q > 0) { totalCost += (p * q); totalQty += q; hasValidData = true; }
-    }
-    if (!hasValidData) { alert("均价计算：请至少输入一行有效的价格和数量！"); return; }
-    document.getElementById('avgResultBox').style.display = 'block';
-    document.getElementById('totalCost').innerText = formatMoney(totalCost); document.getElementById('totalQty').innerText = formatMoney(totalQty);
-    document.getElementById('avgPrice').innerText = formatMoney(totalCost / totalQty);
+    let cost = 0, qty = 0;
+    document.querySelectorAll('.row-grid').forEach(row => {
+        let p = parseFloat(row.querySelector('.pos-price').value);
+        let q = parseFloat(row.querySelector('.pos-qty').value);
+        if(p && q) { cost += p*q; qty += q; }
+    });
+    if(qty === 0) { alert("请输入有效数据"); return; }
+    document.getElementById('avgResultBox').innerHTML = `<div class="summary-card"><h4>持仓均价: ${(cost/qty).toFixed(4)}</h4></div>`;
 }
 </script>
-</body>
-</html>
-<!-- 在末尾添加此部分即可 -->
-    <footer style="text-align: center; margin-top: 50px; padding: 20px;">
-        <a href="https://t.me/xjpccb" target="_blank" style="color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s;">
-            @xjpccb
-        </a>
-    </footer>
-
 </body>
 </html>
