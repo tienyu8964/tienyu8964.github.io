@@ -206,6 +206,43 @@
                 </table>
             </div>
         </div>
+
+        <!-- 新增：目标资金计算器 -->
+        <div class="target-calculator" style="margin-top: 30px; padding-top: 28px; border-top: 1px solid var(--border-color);">
+            <h2>目标资金计算</h2>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>初始本金</label>
+                    <input type="number" id="targetPrincipal" min="0" step="any" placeholder="例如: 10">
+                </div>
+                <div class="input-group has-unit" data-unit="%">
+                    <label>单次收益率</label>
+                    <input type="number" id="targetProfit" min="0" step="any" placeholder="例如: 5">
+                </div>
+                <div class="input-group has-unit" data-unit="%">
+                    <label>单次仓位</label>
+                    <input type="number" id="targetPosition" min="0" max="100" step="any" placeholder="例如: 100">
+                </div>
+                <div class="input-group">
+                    <label>目标资金</label>
+                    <input type="number" id="targetCapital" min="0" step="any" placeholder="例如: 100">
+                </div>
+            </div>
+            <button onclick="calculateTargetCapital()">计算达到目标所需次数</button>
+            <div class="result-box" id="targetCapitalResult">
+                <div class="summary-cards">
+                    <div class="summary-card"><p>目标资金</p><h4 id="targetCapitalDisplay">0</h4></div>
+                    <div class="summary-card"><p>需要盈利次数</p><h4 id="targetCapitalCount">0</h4></div>
+                    <div class="summary-card"><p>预计最终资金</p><h4 id="targetCapitalFinal" class="red">0</h4></div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>#</th><th>投入仓位</th><th>本次收益</th><th>总资产</th></tr></thead>
+                        <tbody id="targetCapitalBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="container avg-focus">
@@ -246,6 +283,46 @@ function calculateCompound() {
     const resultBox = document.getElementById('resultBox'); resultBox.style.display = 'block';
     document.getElementById('targetAsset').innerText = formatMoney(targetAsset); document.getElementById('totalCount').innerText = count >= 1000 ? "1000+" : count;
     document.getElementById('finalAsset').innerText = formatMoney(currentAsset); document.getElementById('detailBody').innerHTML = tableHtml;
+}
+function calculateTargetCapital() {
+    const principal = parseFloat(document.getElementById('targetPrincipal').value);
+    const profitPercent = parseFloat(document.getElementById('targetProfit').value) / 100;
+    const positionPercent = parseFloat(document.getElementById('targetPosition').value) / 100;
+    const targetCapital = parseFloat(document.getElementById('targetCapital').value);
+
+    if (!Number.isFinite(principal) || !Number.isFinite(profitPercent) ||
+        !Number.isFinite(positionPercent) || !Number.isFinite(targetCapital) ||
+        principal <= 0 || targetCapital <= 0 || profitPercent < 0 ||
+        positionPercent <= 0 || positionPercent > 1) {
+        alert("请填写有效数据：本金和目标资金必须大于 0，仓位需大于 0 且不超过 100%。");
+        return;
+    }
+    if (targetCapital <= principal) {
+        alert("目标资金应大于初始本金。");
+        return;
+    }
+    const growthRate = positionPercent * profitPercent;
+    if (growthRate <= 0) {
+        alert("单次收益率必须大于 0，才能计算达到目标所需次数。");
+        return;
+    }
+
+    let currentAsset = principal;
+    let count = 0;
+    let tableHtml = "";
+    while (currentAsset < targetCapital && count < 10000) {
+        count++;
+        const investAmount = currentAsset * positionPercent;
+        const currentProfit = investAmount * profitPercent;
+        currentAsset += currentProfit;
+        tableHtml += `<tr><td>${count}</td><td class="invest-text">${formatMoney(investAmount)}</td><td class="profit-text">+${formatMoney(currentProfit)}</td><td class="total-text">${formatMoney(currentAsset)}</td></tr>`;
+    }
+
+    document.getElementById('targetCapitalResult').style.display = 'block';
+    document.getElementById('targetCapitalDisplay').innerText = formatMoney(targetCapital);
+    document.getElementById('targetCapitalCount').innerText = count >= 10000 ? "10000+" : count;
+    document.getElementById('targetCapitalFinal').innerText = formatMoney(currentAsset);
+    document.getElementById('targetCapitalBody').innerHTML = tableHtml;
 }
 function addPositionRow() {
     const list = document.getElementById('positionList'); const newRow = document.createElement('div'); newRow.className = 'row-grid';
